@@ -17,9 +17,9 @@ import argparse
 
 def getDatData(colnames, basedir,arglist, password, downloaddir,checkdir):
     print(basedir)
-    txtfile = os.path.join(basedir, 'fmriresults01.csv')
+    txtfile = os.path.join(basedir, 'fmriresults01use.csv')
     infile = pd.read_csv(txtfile, names=colnames)
-    scans = infile.derived_files[1:5].tolist()
+    scans = infile.derived_files[10:15].tolist()
     print(len(scans))
     for item in scans:
         call = "python awsdownload.py %s -r %s -u %s -p %s"%(item, checkdir, arglist['WHO'],password)
@@ -33,22 +33,13 @@ def getDatData(colnames, basedir,arglist, password, downloaddir,checkdir):
 #        unzip = unzip.split(' ')
         print('unzipping')
         subprocess.call(unzip, shell = True)
-    for root, dirs, files in os.walk(os.path.join(downloaddir, 'submission_14921')):
-        print(root)
-        print(dirs)
-        print(files)
-#names = data.name.tolist()
-#latitude = data.latitude.tolist()
-#longitude = data.longitude.tolist()
-        
-# make main and func, have to pass username and password
             
 def Main():
     password = input("enter password: ")
     password  = str(password)
     colnames = ['src_subject_id	gender','img03_id	file_source','derived_files','scan_type',	'session_det']
     basedir = '/Users/gracer/Google Drive/ABCD/important_txt/'
-    downloaddir ='/Users/gracer/Desktop'
+    downloaddir ='/Users/gracer/Desktop/submission_14921'
     checkdir = '/Users/gracer/AWS_downloads/submission_14921'
     
     parser=argparse.ArgumentParser(description='Getting Data')
