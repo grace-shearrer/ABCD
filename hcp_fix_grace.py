@@ -78,8 +78,8 @@ def melodic_fix(basedir,arglist,fslbase):
             melodic_call = '%smelodic -i %s -o %s/filtered_func_data.ica -d -250 --nobet --report --Oall --tr=%s'%(fslbase,scan,ica_path, tr, )
             print(melodic_call)
             melodic_call = melodic_call.split(' ')
-            subprocess.call(melodic_call)
-            pdb.set_trace()
+#            subprocess.call(melodic_call)
+            
     
         mc_path = os.path.join(basedir,sub, 'mc')
         if os.path.exists(os.path.join(mc_path,'%s.par'%run)):
@@ -89,6 +89,7 @@ def melodic_fix(basedir,arglist,fslbase):
             mc_call = "\cat,sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv,|,awk,'{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}',>,test.par\"
             mc_call=mc_call.split(',')
             print(mc_call)
+            pdb.set_trace()
 
     
 def main():
