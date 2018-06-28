@@ -54,13 +54,14 @@ import argparse
 def melodic_fix(basedir,arglist,fslbase):
     print('hi')
     for scan in glob.glob(os.path.join(basedir, 'sub-*','ses-baselineYear1Arm1','func','*rest*_bold.nii')):
-        sub=scan.split('/')[8]
-        print(sub)
+        sub=scan.split('/')[8].split('_')[0]
+        run=scan.split('/')[8].split('_')[3]
+        print('this is the sub %s this is the run %s'%(sub,run))
         '''
         get TRs
         '''
         fslval = os.path.join(fslbase,'fslval')
-        tr_call = '%s %s <keyword>'%(fslval, scan, 'pixdim4')
+        tr_call = '%s %s %s'%(fslval, scan, 'pixdim4')
         tr_call = tr_call.split(' ')
         tr = subprocess.check_output(tr_call)
         print(tr)
