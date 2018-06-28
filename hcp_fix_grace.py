@@ -66,31 +66,76 @@ def melodic_fix(basedir,arglist,fslbase):
         print(tr_call)        
 
         tr = subprocess.check_output(tr_call)
+        tr = float(tr)
         print(tr)
-#        mkdir -p ${fmri}.icap
         ica_path = os.path.join(basedir,sub,'%s.ica'%run)
         print(ica_path)
+        '''
+        start melodic
+        '''
         if os.path.exists(os.path.join(ica_path)) == True:
             print('already exists, skipping')
         else:
             os.mkdir(ica_path)
-            #melofid call
-            melodic_call = '%smelodic -i %s -o %s/filtered_func_data.ica -d -250 --nobet --report --Oall --tr=%i'%(fslbase,scan,ica_path, tr)
-#            print(melodic_call)
+            melodic_call = '%smelodic -i %s -o %s/filtered_func_data.ica -d -250 --report --Oall --tr=%f'%(fslbase,scan,ica_path, tr)
             melodic_call = melodic_call.split(' ')
             print(melodic_call)
             subprocess.call(melodic_call)
             
-    
+        '''
+        moving motion parameters
+        '''
         mc_path = os.path.join(basedir,sub, 'mc')
         if os.path.exists(os.path.join(mc_path)):
             print('exists skip')
         else:
             os.mkdir(mc_path)
-            mc_call = "cat sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv | awk '{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}' > test.par"
+            motion_file = os.path.join(basedir, 'sub-*','ses-baselineYear1Arm1','func','%s_ses-baselineYear1Arm1_task-rest_%s_motion.tsv'%(sub,run))
+            mc_call = "cat %s | awk '{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}' > test.par"%motion_file
 #            mc_call=mc_call.split(',')
             print(mc_call)
             subprocess.call(mc_call,shell =True)
+        '''
+        starting fix?
+        '''
+        if arglist['FIX'] == False:
+            print('looks like there is no training file, please give a training file')
+        else:
+            
+#        if [ "X${TrainingData}" != X ]; then
+#	# User has specified a training data file
+#
+#	# add .RData suffix if not already there
+#	if [[ "${TrainingData}" != *.RData ]]; then 
+#		TrainingData=${TrainingData}.RData
+#	fi
+#
+#	# if the specified TrainingData is not a full path to an existing file,
+#	# assume that the user is specifying the name of a file in the training_files folder in FSL_FIXDIR
+#	if [ ! -f "${TrainingData}" ]; then 
+#		TrainingData=${FSL_FIXDIR}/training_files/${TrainingData}
+#	fi
+#
+#	# finally, if the TrainingData file is not found, report an error and get out of here
+#	if [ ! -f "${TrainingData}" ]; then
+#		Error "FIX training data not found: ${TrainingData}"
+#		exit -1
+#	fi
+#
+#	# now run fix
+#	Inform "About to run: ${FSL_FIXDIR}/fix ${fmri}.ica ${TrainingData} 10 -m -h $hp"
+#	${FSL_FIXDIR}/fix ${fmri}.ica ${TrainingData} 10 -m -h $hp
+#
+#else
+#	# user has not specified a training data file
+#	if [ $hp != 2000 ] ; then
+#		Debug "since specified hp value (${hp}) is not 2000, we assume a value of 200"
+#		Inform "About to run: ${FSL_FIXDIR}/fix ${fmri}.ica ${FSL_FIXDIR}/training_files/HCP_hp200.RData 10 -m -h 200"
+#		${FSL_FIXDIR}/fix ${fmri}.ica ${FSL_FIXDIR}/training_files/HCP_hp200.RData 10 -m -h 200
+#	else
+#		Inform "About to run: ${FSL_FIXDIR}/fix ${fmri}.ica ${FSL_FIXDIR}/training_files/HCP_hp2000.RData 10 -m -h 2000"
+#		${FSL_FIXDIR}/fix ${fmri}.ica ${FSL_FIXDIR}/training_files/HCP_hp2000.RData 10 -m -h 2000
+
             pdb.set_trace()
 
     
