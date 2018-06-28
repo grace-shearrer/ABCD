@@ -67,7 +67,6 @@ def melodic_fix(basedir,arglist,fslbase):
 
         tr = subprocess.check_output(tr_call)
         print(tr)
-        pdb.set_trace()
 #        mkdir -p ${fmri}.icap
         ica_path = os.path.join(basedir,sub,'%s.ica'%run)
         print(ica_path)
