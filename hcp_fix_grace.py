@@ -76,8 +76,9 @@ def melodic_fix(basedir,arglist,fslbase):
             os.mkdir(ica_path)
             #melofid call
             melodic_call = '%smelodic -i %s -o %s/filtered_func_data.ica -d -250 --nobet --report --Oall --tr=%s'%(fslbase,scan,ica_path, tr)
-            print(melodic_call)
+#            print(melodic_call)
             melodic_call = melodic_call.split(' ')
+            print(melodic_call)
             subprocess.call(melodic_call)
             
     
