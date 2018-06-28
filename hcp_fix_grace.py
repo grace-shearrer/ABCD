@@ -75,7 +75,7 @@ def melodic_fix(basedir,arglist,fslbase):
         else:
             os.mkdir(ica_path)
             #melofid call
-            melodic_call = '%smelodic -i %s -o %s/filtered_func_data.ica -d -250 --nobet --report --Oall --tr=%s'%(fslbase,scan,ica_path, tr, )
+            melodic_call = '%smelodic -i %s -o %s/filtered_func_data.ica -d -250 --nobet --report --Oall --tr=%s'%(fslbase,scan,ica_path, tr)
             print(melodic_call)
             melodic_call = melodic_call.split(' ')
             subprocess.call(melodic_call)
@@ -86,10 +86,10 @@ def melodic_fix(basedir,arglist,fslbase):
             print('exists skip')
         else:
             os.mkdir(mc_path)
-            mc_call = "cat,sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv,|,awk,'{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}',>,test.par"
-            mc_call=mc_call.split(',')
+            mc_call = "cat sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv | awk '{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}' > test.par"
+#            mc_call=mc_call.split(',')
             print(mc_call)
-            subprocess.call(mc_call)
+            subprocess.call(mc_call,shell =True)
             pdb.set_trace()
 
     
