@@ -85,8 +85,8 @@ def melodic_fix(basedir,arglist,fslbase):
         if os.path.exists(os.path.join(mc_path,'%s.par'%run)):
             print('exists skip')
         else:
-            mkdir(mc_path)
-            mc_call = "\cat,sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv,|,awk,'{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}',>,test.par\"
+            os.mkdir(mc_path)
+            mc_call = "\cat,sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv,|,awk,'{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}',>,test.par"
             mc_call=mc_call.split(',')
             print(mc_call)
             pdb.set_trace()
