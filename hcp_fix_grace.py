@@ -82,7 +82,7 @@ def melodic_fix(basedir,arglist,fslbase):
             
     
         mc_path = os.path.join(basedir,sub, 'mc')
-        if os.path.exists(os.path.join(mc_path,'%s.par'%run)):
+        if os.path.exists(os.path.join(mc_path)):
             print('exists skip')
         else:
             os.mkdir(mc_path)
