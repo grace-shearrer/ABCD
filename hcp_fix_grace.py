@@ -63,10 +63,10 @@ def melodic_fix(basedir,arglist,fslbase):
         fslval = os.path.join(fslbase,'fslval')
         tr_call = '%s %s %s'%(fslval, scan, 'pixdim4')
         tr_call = tr_call.split(' ')
-        tr = subprocess.check_output(tr_call)
+        print(tr_call)        tr = subprocess.check_output(tr_call)
         print(tr)
         pdb.set_trace()
-#        mkdir -p ${fmri}.ica
+#        mkdir -p ${fmri}.icap
 
     
 def main():
