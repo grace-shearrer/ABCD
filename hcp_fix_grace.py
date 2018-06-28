@@ -69,6 +69,16 @@ def melodic_fix(basedir,arglist,fslbase):
         print(tr)
         pdb.set_trace()
 #        mkdir -p ${fmri}.icap
+        ica_path = os.path.join(basedir,sub,'%s.ica'%run)
+        print(ica_path)
+        if os.path.exists(ica_path):
+            print('already exists, skipping')
+        else:
+            os.mkdir(ica_path)
+            #melofid call
+            melodic_call = '%s/melodic -i %s -o %s/filtered_func_data.ica -d -250 --nobet --report --Oall --tr=%s'%(fslbase,scan,ica_path, tr, )
+            print(melodic_call)
+            pdb.set_trace()
 
     
 def main():
