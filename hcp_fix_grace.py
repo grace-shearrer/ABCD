@@ -64,6 +64,7 @@ def melodic_fix(basedir,arglist,fslbase):
         tr_call = '%s %s %s'%(fslval, scan, 'pixdim4')
         tr_call = tr_call.split(' ')
         print(tr_call)        
+
         tr = subprocess.check_output(tr_call)
         print(tr)
         pdb.set_trace()
@@ -72,7 +73,7 @@ def melodic_fix(basedir,arglist,fslbase):
     
 def main():
     basedir = '/projects/niblab/data/ABCD/'
-    fslbase = '/projects/niblab/modules/software/fsl/5.0.10/bin/fsl/bin'
+    fslbase = '/projects/niblab/modules/software/fsl/5.0.10/bin/'
     
     parser=argparse.ArgumentParser(description='preprocessing')
     parser.add_argument('-training',dest='TRAIN',
