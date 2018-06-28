@@ -70,7 +70,7 @@ def melodic_fix(basedir,arglist,fslbase):
 #        mkdir -p ${fmri}.icap
         ica_path = os.path.join(basedir,sub,'%s.ica'%run)
         print(ica_path)
-        if os.path.exists(ica_path):
+        if os.path.exists((ica_path,'filtered_func_data.ica')):
             print('already exists, skipping')
         else:
             os.mkdir(ica_path)
@@ -80,6 +80,15 @@ def melodic_fix(basedir,arglist,fslbase):
             melodic_call = melodic_call.split(' ')
             subprocess.call(melodic_call)
             pdb.set_trace()
+    
+        mc_path = os.path.join(basedir,sub, 'mc')
+        if os.path.exists(os.path.join(mc_path,'%s.par'%run)):
+            print('exists skip')
+        else:
+            mkdir(mc_path)
+            mc_call = "\cat,sub-NDARINV007W6H7B_ses-baselineYear1Arm1_task-rest_run-01_motion.tsv,|,awk,'{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}',>,test.par\"
+            mc_call=mc_call.split(',')
+            print(mc_call)
 
     
 def main():
@@ -190,13 +199,15 @@ if [ -f ../${fmri_orig}_Atlas.dtseries.nii ] ; then
   $FSLDIR/bin/imln ../${fmri_orig}_Atlas.dtseries.nii Atlas.dtseries.nii
 fi
 
-mkdir -p mc
-if [ -f ../Movement_Regressors.txt ] ; then
-  cat ../Movement_Regressors.txt | awk '{ print $4 " " $5 " " $6 " " $1 " " $2 " " $3}' > mc/prefiltered_func_data_mcf.par
-else
-  Error "Movement_Regressors.txt not retrieved properly." 
-  exit -1
+#mkdir -p mc
+#if [ -f ../Movement_Regressors.txt ] ; then
+#  cat ../Movement_Regressors.txt | awk '{ print $2 " " $3 " " $2 " " $6 " " $2 " " $5}' > mc/prefiltered_func_data_mcf.par
+#else
+#  Error "Movement_Regressors.txt not retrieved properly." 
+#  exit -1
 fi 
+1           2      3         4          5        6        7
+t_indx	rot_z	rot_x	rot_y	trans_z	trans_x	trans_y
 
 Inform "functionmotionconfounds log file is to be named: .fix.functionmotionconfounds.log instead of .fix.log"
 #${FSL_FIXDIR}/call_matlab.sh -l .fix.log -f functionmotionconfounds $tr $hp 
