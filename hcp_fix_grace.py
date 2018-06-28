@@ -70,7 +70,7 @@ def melodic_fix(basedir,arglist,fslbase):
 #        mkdir -p ${fmri}.icap
         ica_path = os.path.join(basedir,sub,'%s.ica'%run)
         print(ica_path)
-        if os.path.exists(os.path.join(ica_path,'filtered_func_data.ica')):
+        if os.path.exists(os.path.join(ica_path,'filtered_func_data.ica')) == True:
             print('already exists, skipping')
         else:
             os.mkdir(ica_path)
