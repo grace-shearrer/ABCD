@@ -31,19 +31,56 @@ def anatomical_ave(basedir,fslbase,StandardImage):
 			flirty = '%sflirt -in %s_roi -ref %s -omat %sroi_to_std.mat -out %sroi_to_std -dof 12 -searchrx -30 30 -searchry -30 30 -searchrz -30 30'%(fslbase,item, StandardImage,item,item)
 			flirt = subprocess.Popen(flirty, shell = True)
 			flirt.wait()
+			conv2 = '%sconvert_xfm -omat %s_std2roi.mat -inverse %sroi_to_std.mat'%(fslbase,item,item)
+			conv2_run = subprocess.Popen(conv2,shell = True)
+			conv2_run.wait()
 			pdb.set_trace()
 		if len(T1scans) > 1:
 			for item in T1scans:
-				item = item.split('.')[0]
-				reor_call = '%sfslreorient2std %s %s_reorient'%(fslbase, item, item)
-				print(reor_call)
+'''
+		# register images together, using standard space brain masks
+		im1=`echo $newimlist | awk '{ print $1 }'`;
+		for im2 in $newimlist ; do
+		 if [ $im2 != $im1 ] ; then
+        	# register version of two images (whole heads still)
+        	$FSLDIR/bin/flirt -in ${im2}_roi -ref ${im1}_roi -omat ${im2}_to_im1.mat -out ${im2}_to_im1 -dof 6 -searchrx -30 30 -searchry -30 30 -searchrz -30 30 
+
+        	# transform std space brain mask
+        	$FSLDIR/bin/flirt -init ${im1}_std2roi.mat -in "$StandardMask" -ref ${im1}_roi -out ${im1}_roi_linmask -applyxfm
+
+        	# re-register using the brain mask as a weighting image
+        	$FSLDIR/bin/flirt -in ${im2}_roi -init ${im2}_to_im1.mat -omat ${im2}_to_im1_linmask.mat -out ${im2}_to_im1_linmask -ref ${im1}_roi -refweight ${im1}_roi_linmask -nosearch
+	    else
+        	cp $FSLDIR/etc/flirtsch/ident.mat ${im1}_to_im1_linmask.mat
+    		fi
+		done
+
+# get the halfway space transforms (midtrans output is the *template* to halfway transform)
+translist=""
+for fn in $newimlist ; do translist="$translist ${fn}_to_im1_linmask.mat" ; done
+$FSLDIR/bin/midtrans --separate=${wdir}/ToHalfTrans --template=${im1}_roi $translist
+
+# interpolate
+n=1;
+for fn in $newimlist ; do
+    num=`$FSLDIR/bin/zeropad $n 4`;
+    n=`echo $n + 1 | bc`;
+    if [ $crop = yes ] ; then
+        $FSLDIR/bin/applywarp --rel -i ${fn}_roi --premat=${wdir}/ToHalfTrans${num}.mat -r ${im1}_roi -o ${wdir}/ImToHalf${num} --interp=spline
+    else
+        $FSLDIR/bin/convert_xfm -omat ${wdir}/ToHalfTrans${num}.mat -concat ${wdir}/ToHalfTrans${num}.mat ${fn}TOroi.mat
+        $FSLDIR/bin/convert_xfm -omat ${wdir}/ToHalfTrans${num}.mat -concat ${im1}_roi2orig.mat ${wdir}/ToHalfTrans${num}.mat
+        $FSLDIR/bin/applywarp --rel -i ${fn}_reorient --premat=${wdir}/ToHalfTrans${num}.mat -r ${im1}_reorient -o ${wdir}/ImToHalf${num} --interp=spline  
+    fi
+done
+# average outputs
+comm=`echo ${wdir}/ImToHalf* | sed "s@ ${wdir}/ImToHalf@ -add ${wdir}/ImToHalf@g"`;
+tot=`echo ${wdir}/ImToHalf* | wc -w`;
+$FSLDIR/bin/fslmaths ${comm} -div $tot ${output}
+'''		
 		else:
 			print('there are %i scans for sub %s')%(len(T1scans),sub)
 '''
-				$FSLDIR/bin/robustfov -i ${fn}_reorient -r ${fn}_roi -m ${fn}_roi2orig.mat $BrainSizeOpt
-				$FSLDIR/bin/convert_xfm -omat ${fn}TOroi.mat -inverse ${fn}_roi2orig.mat
-				$FSLDIR/bin/flirt -in ${fn}_roi -ref "$StandardImage" -omat ${fn}roi_to_std.mat -out ${fn}roi_to_std -dof 12 -searchrx -30 30 -searchry -30 30 -searchrz -30 30
-				$FSLDIR/bin/convert_xfm -omat ${fn}_std2roi.mat -inverse ${fn}roi_to_std.mat
 
 # register images together, using standard space brain masks
 im1=`echo $newimlist | awk '{ print $1 }'`;
