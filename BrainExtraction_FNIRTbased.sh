@@ -1,11 +1,25 @@
-#!/bin/bash 
-set -e
-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+'''
+frankensteining an hcp script for ABCD
+'''
 # Requirements for this script
 #  installed versions of: FSL (version 5.0.6)
 #  environment: as in SetUpHCPPipeline.sh   (or individually: FSLDIR, HCPPIPEDIR_Templates)
 
 ################################################ SUPPORT FUNCTIONS ##################################################
+def fancy_Ex(basedir, fslbase):
+
+def main():
+	basedir = '/projects/niblab/data/ABCD/'
+	fslbase = '/projects/niblab/modules/software/fsl/5.0.10/bin/'
+	ref_MNI = '/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm_brain'
+	
+
+	fancy_Ex(basedir, fslbase)
+main()
+
+
 
 Usage() {
   echo "`basename $0`: Tool for performing brain extraction using non-linear (FNIRT) results"
