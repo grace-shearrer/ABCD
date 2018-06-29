@@ -6,7 +6,7 @@ import glob
 import subprocess
 import pdb
 
-def anatomical_ave(basedir,fslbase):
+def anatomical_ave(basedir,fslbase,StandardImage):
 	for scan in glob.glob(os.path.join(basedir, 'sub-*','ses-baselineYear1Arm1','anat')):
 		print(scan)
         	sub=scan.split('/')[5]
@@ -23,9 +23,15 @@ def anatomical_ave(basedir,fslbase):
 			reor.wait()
 			inputi = '%s_reorient'%item
 			rob_call ='%srobustfov -i %s -r %s_roi -m %s_roi2orig.mat'%(fslbase,inputi,item,item)
-			rob_fov_call = subprocess.call(rob_call, shell =True)
-
-
+			rob_fov_call = subprocess.Popen(rob_call, shell =True)
+			rob_fov_call.wait()
+			conv_call = '%sconvert_xfm -omat %sTOroi.mat -inverse %s_roi2orig.mat'%(fslbase, item, item)
+			conv_xfm_call = subprocess.Popen(conv_call, shell = True)
+			conv_xfm_call.wait()
+			flirty = '%sflirt -in %s_roi -ref %s -omat %sroi_to_std.mat -out %sroi_to_std -dof 12 -searchrx -30 30 -searchry -30 30 -searchrz -30 30'%(fslbase,item, StandardImage,item,item)
+			flirt = subprocess.Popen(flirty, shell = True)
+			flirt.wait()
+			pdb.set_trace()
 		if len(T1scans) > 1:
 			for item in T1scans:
 				item = item.split('.')[0]
@@ -64,10 +70,10 @@ done
 def main():
 	basedir = '/projects/niblab/data/ABCD/'
 	fslbase = '/projects/niblab/modules/software/fsl/5.0.10/bin/'
-	StandardImage=os.path.join(fslbase,'data','standard','MNI152_T1_2mm.nii.gz')
+	StandardImage='/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm.nii.gz'
 	StandardMask=os.path.join(fslbase,'data','standard','MNI152_T1_2mm_brain_mask_dil.nii.gz')
 
-	anatomical_ave(basedir, fslbase)
+	anatomical_ave(basedir, fslbase,StandardImage)
 main()
 #set -e
 '''
