@@ -5,56 +5,98 @@ import os
 import glob
 import subprocess
 import pdb
-
-def anatomical_ave(basedir,fslbase,StandardImage):
+import shutil
+def anatomical_ave(basedir,fslbase,StandardImage,StandardMask, FlirtI):
 	for scan in glob.glob(os.path.join(basedir, 'sub-*','ses-baselineYear1Arm1','anat')):
 		print(scan)
         	sub=scan.split('/')[5]
 		T1scans = glob.glob(os.path.join(scan,'*T1w*.nii'))
 		T2scans = glob.glob(os.path.join(scan,'*T2w*.nii'))
 		Allscans =  glob.glob(os.path.join(scan,'*.nii'))
-
+		'''
 		for item in Allscans:
                 	item = item.split('.')[0]
-                        reor_call = '%sfslreorient2std %s %s_reorient'%(fslbase, item, item)
-                       	print(reor_call)
-			reor_call = reor_call.split(' ')
-			reor = subprocess.Popen((reor_call), stdout=subprocess.PIPE)
-			reor.wait()
-			inputi = '%s_reorient'%item
-			rob_call ='%srobustfov -i %s -r %s_roi -m %s_roi2orig.mat'%(fslbase,inputi,item,item)
-			rob_fov_call = subprocess.Popen(rob_call, shell =True)
-			rob_fov_call.wait()
-			conv_call = '%sconvert_xfm -omat %sTOroi.mat -inverse %s_roi2orig.mat'%(fslbase, item, item)
-			conv_xfm_call = subprocess.Popen(conv_call, shell = True)
-			conv_xfm_call.wait()
-			flirty = '%sflirt -in %s_roi -ref %s -omat %sroi_to_std.mat -out %sroi_to_std -dof 12 -searchrx -30 30 -searchry -30 30 -searchrz -30 30'%(fslbase,item, StandardImage,item,item)
-			flirt = subprocess.Popen(flirty, shell = True)
-			flirt.wait()
-			conv2 = '%sconvert_xfm -omat %s_std2roi.mat -inverse %sroi_to_std.mat'%(fslbase,item,item)
-			conv2_run = subprocess.Popen(conv2,shell = True)
-			conv2_run.wait()
-			pdb.set_trace()
+			if os.path.exists('%s_reorient'%item):
+				print('%s_reorient exists skipping'%item)
+			else:
+                        	reor_call = '%sfslreorient2std %s %s_reorient'%(fslbase, item, item)
+                       		print(reor_call)
+				reor_call = reor_call.split(' ')
+				reor = subprocess.Popen((reor_call), stdout=subprocess.PIPE)
+				reor.wait()
+			if os.path.exists('%s_roi2orig.mat'%item):
+				print('%s_roi2orig.mat exists skipping'%item)
+			else:
+				inputi = '%s_reorient'%item
+				rob_call ='%srobustfov -i %s -r %s_roi -m %s_roi2orig.mat'%(fslbase,inputi,item,item)
+				rob_fov_call = subprocess.Popen(rob_call, shell =True)
+				rob_fov_call.wait()
+			if os.path.exists('%sTOroi.mat'%item):
+				print('%sTOroi.mat exists skipping'%item)		
+			else:
+				conv_call = '%sconvert_xfm -omat %sTOroi.mat -inverse %s_roi2orig.mat'%(fslbase, item, item)
+				conv_xfm_call = subprocess.Popen(conv_call, shell = True)
+				conv_xfm_call.wait()
+			if os.path.exists('%sroi_to_std'%item):
+				print('%sroi_to_std exists skipping'%item)
+			else:
+				flirty = '%sflirt -in %s_roi -ref %s -omat %sroi_to_std.mat -out %sroi_to_std -dof 12 -searchrx -30 30 -searchry -30 30 -searchrz -30 30'%(fslbase,item, StandardImage,item,item)
+				flirt = subprocess.Popen(flirty, shell = True)
+				flirt.wait()
+			if os.path.exists('%s_std2roi.mat'%item):
+				print('%s_std2roi.mat exists skipping'%item)
+			else:
+				conv2 = '%sconvert_xfm -omat %s_std2roi.mat -inverse %sroi_to_std.mat'%(fslbase,item,item)
+				conv2_run = subprocess.Popen(conv2,shell = True)
+				conv2_run.wait()
+		'''
 		if len(T1scans) > 1:
 			for item in T1scans:
+				item = item.split('.')[0]
+				combT1 = '%sflirt -in %s_roi -ref %s_roi -omat %s_to_im1.mat -out %s_to_im1 -dof 6 -searchrx -30 30 -searchry -30 30 -searchrz -30 30'%(fslbase,item,item,item,item)
+				comb_run = subprocess.Popen(combT1,shell=True)
+				comb_run.wait()
+		        	trans_std_mask = '%sflirt -init %s_std2roi.mat -in %s -ref %s_roi -out %s_roi_linmask -applyxfm'%(fslbase,item,StandardMask, item,item)
+				trans_std_mask_run = subprocess.Popen(trans_std_mask, shell = True)
+				trans_std_mask_run.wait()
+        			wt_image = '%sflirt -in %s_roi -init %s_to_im1.mat -omat %s_to_im1_linmask.mat -out %s_to_im1_linmask -ref %s_roi -refweight %s_roi_linmask -nosearch'%(fslbase,item,item,item,item,item,item)
+				wt_image_run = subprocess.Popen(wt_image,shell=True)
+				wt_image_run.wait()
+ 			else:
+				print('there are %i scans for sub %s')%(len(T1scans),sub)
+				inp= '%s'%(FlirtI) 
+				outp= '%s_to_im1_linmask.mat'%item				
+				shutil.copyfile(inp,outp)
+		if len(T2scans) > 1:
+			for item in T2scans:
+				item = item.split('.')[0]
+				combT1 = '%sflirt -in %s_roi -ref %s_roi -omat %s_to_im1.mat -out %s_to_im1 -dof 6 -searchrx -30 30 -searchry -30 30 -searchrz -30 30'%(fslbase,item,item)
+				comb_run = subprocess.Popen(combT1,shell=True)
+				comb_run.wait()
+		        	trans_std_mask = '%sflirt -init %s_std2roi.mat -in %s -ref %s_roi -out %s_roi_linmask -applyxfm'%(fslbase,item,StandardMask, item,item)
+				trans_std_mask_run = subprocess.Popen(trans_std_mask, shell = True)
+				trans_std_mask_run.wait()
+        			wt_imgae = '%sflirt -in %s_roi -init %s_to_im1.mat -omat %s_to_im1_linmask.mat -out %s_to_im1_linmask -ref %s_roi -refweight %s_roi_linmask -nosearch'%(fslbase,item,item,item,item,item,item)
+				wt_image_run = subprocess.Popen(wt_image,shell=True)
+				wt_image_run.wait()
+
+ 			else:
+				print('there are %i scans for sub %s')%(len(T1scans),sub)
+				inp= '%s'%(FlirtI) 
+				outp= '%s_to_im1_linmask.mat'%item				
+				shutil.copyfile(inp,outp)
+
+	for item in Allscans:
+		item = item.split('.')[0]
+		translist = '%s_to_im1_linmask.mat'%item	
+		half_call = '%smidtrans --separate=%sToHalfTrans --template=%s_roi %s'%(fslbase,item, item, translist)
+		half_call_go = subprocess.Popen(half_call, shell = True)
+		half_call_go.wait()
+	n=1
+	for item in Allscans:
+		item = item.split('.')[0]
+		 
 '''
-		# register images together, using standard space brain masks
-		im1=`echo $newimlist | awk '{ print $1 }'`;
-		for im2 in $newimlist ; do
-		 if [ $im2 != $im1 ] ; then
-        	# register version of two images (whole heads still)
-        	$FSLDIR/bin/flirt -in ${im2}_roi -ref ${im1}_roi -omat ${im2}_to_im1.mat -out ${im2}_to_im1 -dof 6 -searchrx -30 30 -searchry -30 30 -searchrz -30 30 
-
-        	# transform std space brain mask
-        	$FSLDIR/bin/flirt -init ${im1}_std2roi.mat -in "$StandardMask" -ref ${im1}_roi -out ${im1}_roi_linmask -applyxfm
-
-        	# re-register using the brain mask as a weighting image
-        	$FSLDIR/bin/flirt -in ${im2}_roi -init ${im2}_to_im1.mat -omat ${im2}_to_im1_linmask.mat -out ${im2}_to_im1_linmask -ref ${im1}_roi -refweight ${im1}_roi_linmask -nosearch
-	    else
-        	cp $FSLDIR/etc/flirtsch/ident.mat ${im1}_to_im1_linmask.mat
-    		fi
-		done
-
 # get the halfway space transforms (midtrans output is the *template* to halfway transform)
 translist=""
 for fn in $newimlist ; do translist="$translist ${fn}_to_im1_linmask.mat" ; done
@@ -66,51 +108,31 @@ for fn in $newimlist ; do
     num=`$FSLDIR/bin/zeropad $n 4`;
     n=`echo $n + 1 | bc`;
     if [ $crop = yes ] ; then
-        $FSLDIR/bin/applywarp --rel -i ${fn}_roi --premat=${wdir}/ToHalfTrans${num}.mat -r ${im1}_roi -o ${wdir}/ImToHalf${num} --interp=spline
+	$FSLDIR/bin/applywarp --rel -i ${fn}_roi --premat=${wdir}/ToHalfTrans${num}.mat -r ${im1}_roi -o ${wdir}/ImToHalf${num} --interp=spline
     else
-        $FSLDIR/bin/convert_xfm -omat ${wdir}/ToHalfTrans${num}.mat -concat ${wdir}/ToHalfTrans${num}.mat ${fn}TOroi.mat
-        $FSLDIR/bin/convert_xfm -omat ${wdir}/ToHalfTrans${num}.mat -concat ${im1}_roi2orig.mat ${wdir}/ToHalfTrans${num}.mat
-        $FSLDIR/bin/applywarp --rel -i ${fn}_reorient --premat=${wdir}/ToHalfTrans${num}.mat -r ${im1}_reorient -o ${wdir}/ImToHalf${num} --interp=spline  
+	$FSLDIR/bin/convert_xfm -omat ${wdir}/ToHalfTrans${num}.mat -concat ${wdir}/ToHalfTrans${num}.mat ${fn}TOroi.mat
+	$FSLDIR/bin/convert_xfm -omat ${wdir}/ToHalfTrans${num}.mat -concat ${im1}_roi2orig.mat ${wdir}/ToHalfTrans${num}.mat
+	$FSLDIR/bin/applywarp --rel -i ${fn}_reorient --premat=${wdir}/ToHalfTrans${num}.mat -r ${im1}_reorient -o ${wdir}/ImToHalf${num} --interp=spline  
     fi
 done
 # average outputs
 comm=`echo ${wdir}/ImToHalf* | sed "s@ ${wdir}/ImToHalf@ -add ${wdir}/ImToHalf@g"`;
 tot=`echo ${wdir}/ImToHalf* | wc -w`;
 $FSLDIR/bin/fslmaths ${comm} -div $tot ${output}
-'''		
-		else:
-			print('there are %i scans for sub %s')%(len(T1scans),sub)
 '''
 
-# register images together, using standard space brain masks
-im1=`echo $newimlist | awk '{ print $1 }'`;
-for im2 in $newimlist ; do
-    if [ $im2 != $im1 ] ; then
-        # register version of two images (whole heads still)
-        $FSLDIR/bin/flirt -in ${im2}_roi -ref ${im1}_roi -omat ${im2}_to_im1.mat -out ${im2}_to_im1 -dof 6 -searchrx -30 30 -searchry -30 30 -searchrz -30 30 
 
-        # transform std space brain mask
-        $FSLDIR/bin/flirt -init ${im1}_std2roi.mat -in "$StandardMask" -ref ${im1}_roi -out ${im1}_roi_linmask -applyxfm
 
-        # re-register using the brain mask as a weighting image
-        $FSLDIR/bin/flirt -in ${im2}_roi -init ${im2}_to_im1.mat -omat ${im2}_to_im1_linmask.mat -out ${im2}_to_im1_linmask -ref ${im1}_roi -refweight ${im1}_roi_linmask -nosearch
-    else
-        cp $FSLDIR/etc/flirtsch/ident.mat ${im1}_to_im1_linmask.mat
-    fi
-done
 
-		if len(T2scans) > 2:
 
-        	type=scan.split('/')[8].split('_')[3]
-'''		
 
 def main():
 	basedir = '/projects/niblab/data/ABCD/'
 	fslbase = '/projects/niblab/modules/software/fsl/5.0.10/bin/'
 	StandardImage='/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm.nii.gz'
-	StandardMask=os.path.join(fslbase,'data','standard','MNI152_T1_2mm_brain_mask_dil.nii.gz')
-
-	anatomical_ave(basedir, fslbase,StandardImage)
+	StandardMask='/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm_brain_mask_dil.nii.gz'
+	FlirtI = '/projects/niblab/modules/software/fsl/5.0.10/etc/flirtsch/ident.mat'
+	anatomical_ave(basedir, fslbase,StandardImage,StandardMask,FlirtI)
 main()
 #set -e
 '''
