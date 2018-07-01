@@ -10,9 +10,32 @@ def anatomical_ave(basedir):
                 T2scans = glob.glob(os.path.join(scan,'*T2w*.nii'))
 		if len(T1scans) > 1:
 			output = os.path.join(scan,'averageT1')
-			call = 'AnatomicalAverage %s %s -o %s -v -w %s'%(T1scans[0], T1scans[1],output,scan)
-			call_run = subprocess.Popen(call, shell=True)
-			call_run.wait()
+			if os.path.exists(output):
+				print('%s exists skipping')
+			else:
+				call = 'AnatomicalAverage %s %s -o %s -v -w %s'%(T1scans[0], T1scans[1],output,scan)
+				call_run = subprocess.Popen(call, shell=True)
+				call_run.wait()
+		if len(T2scans) > 1:
+			output = os.path.join(scan,'averageT2')
+			if os.path.exists(output): 
+				print('%s exists skipping'%s)
+			else:
+				call = 'AnatomicalAverage %s %s -o %s -v -w %s'%(T2scans[0], T2scans[1],output,scan)
+				call_run = subprocess.Popen(call, shell=True)
+				call_run.wait()
+		aves =glob.glob(os.path.join(scan,'averageT*.nii'))
+		ref='/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm.nii.gz'
+		print('starting ACPC alignment :D ')
+		for image in aves:
+			output = aves.split('.')[0]
+			output = '%s_ACPC'%output
+			if os.path.exists(output):
+				print('%s already aligned'%output)
+			else:
+				ACPC = 'ACPCAlignment --workingdir=%s --in=%s --ref=%s --out=%s --omat=%s'%(scan,image,ref,output,output)
+				ACPC_run = subprocess.Popen(ACPC, shell = True)
+				ACPC_run.wait()	
 def main():
 	basedir = '/projects/niblab/data/ABCD/'
 	anatomical_ave(basedir)
