@@ -81,12 +81,11 @@ def anatomical_ave(basedir):
                                         ACPC_run.wait()
 		all_ACPC = glob.glob(os.path.join(scan,'average*_ACPC.nii.gz'))
 		for item in all_ACPC:
-			reference = '/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm_brain.nii.gz'
-			ref_mask = '/projects/niblab/modules/software/fsl/5.0.10/data/standard/MNI152_T1_2mm_brain_mask.nii.gz'
 			output = item.split('.')[0]
-			output = '%s_brain'%output
+			output = '%s_betted_brain'%output
 			output_mask = '%s_mask'%output
-			BET = '/projects/niblab/scripts/ABCD/ABCD/BrainExtraction_FNIRTbased.sh --workingdir=%s --in=%s  --ref2mm=%s --ref2mmmask=%s --outbrain=%s --outbrainmask=%s'%(scan, item, reference, ref_mask, output, output_mask)
+			BET ='/projects/niblab/modules/software/fsl/5.0.10/bin/bet %s %s -m'%(item, output)
+			print(BET)
 			BET_run = subprocess.Popen(BET, shell = True)
 			BET_run.wait()
 
