@@ -104,6 +104,8 @@ def melodic_fix(basedir,arglist,fslbase):
 	else:
 		T1_scan='%s_ses-baselineYear1Arm1_T1w.nii'%sub
 		T1_path = os.path.join(basedir,sub,'ses-baselineYear1Arm1','anat',T1_scan)
+		T1_new_path = os.path.join(reg_path,T1_scan)
+		shutil.copyfile(T1_path, T1_new_path)
 		if os.path.exists(T1_path) == True:
 			T1_new_path = os.path.join(reg_path,T1_scan)
 			shutil.copyfile(T1_path, T1_new_path)
