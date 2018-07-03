@@ -27,7 +27,7 @@ import subprocess
 import glob
 import pdb
 import argparse
-
+import shutil
 #. ${FSL_FIXDIR}/settings.sh
 
 #############################################################
@@ -106,6 +106,9 @@ def melodic_fix(basedir,arglist,fslbase):
 		T1_path = os.path.join(basedir,sub,'ses-baselineYear1Arm1','anat',T1_scan)
 		T1_new_path = os.path.join(reg_path,T1_scan)
 		shutil.copyfile(T1_path, T1_new_path)
+		if os.path.exists(T1_path) == True:
+			T1_new_path = os.path.join(reg_path,T1_scan)
+			shutil.copyfile(T1_path, T1_new_path)
 		Mean_func_path = os.path.join(ica_path,'mean_func.nii.gz')
 		Example_func_path = os.path.join(reg_path, 'example_func.nii.gz')
 		'''
@@ -123,9 +126,10 @@ def melodic_fix(basedir,arglist,fslbase):
         '''
         starting fix?
         '''
-        if arglist['FIX'] == False:
-            print('looks like there is no training file, please give a training file')
-        else:
+#        if arglist['FIX'] == False:
+#            print('looks like there is no training file, please give a training file')
+#        else:
+#		print('cool')
             
 #        if [ "X${TrainingData}" != X ]; then
 #	# User has specified a training data file
@@ -161,7 +165,6 @@ def melodic_fix(basedir,arglist,fslbase):
 #		Inform "About to run: ${FSL_FIXDIR}/fix ${fmri}.ica ${FSL_FIXDIR}/training_files/HCP_hp2000.RData 10 -m -h 2000"
 #		${FSL_FIXDIR}/fix ${fmri}.ica ${FSL_FIXDIR}/training_files/HCP_hp2000.RData 10 -m -h 2000
 
-            pdb.set_trace()
 
     
 def main():
