@@ -93,20 +93,33 @@ def melodic_fix(basedir,arglist,fslbase):
             par_path = os.path.join(mc_path,'motion.par')
             motion_file = os.path.join(basedir, 'sub-*','ses-baselineYear1Arm1','func','%s_ses-baselineYear1Arm1_task-rest_%s_motion.tsv'%(sub,run))
             mc_call = "cat %s | awk '{ print $3 " " $4 " " $2 " " $6 " " $7 " " $5}' > %s"%(motion_file, par_path)
-#            mc_call=mc_call.split(',')
             print(mc_call)
             subprocess.call(mc_call,shell =True)
         '''
         move stuf
         '''
-        $FSLDIR/bin/imln ../../../../T1w_restore_brain highres
-        $FSLDIR/bin/imln ../../../../wmparc wmparc
-        $FSLDIR/bin/imln ../mean_func example_func
-        $FSLDIR/bin/makerot --theta=0 > highres2example_func.mat
-        $FSLDIR/bin/fslmaths ../../../../T1w -div ../../../../T2w veins -odt float
-        $FSLDIR/bin/fslmaths veins -div `$FSLDIR/bin/fslstats veins -k ${FSL_FIXDIR}/mask_files/hcp_0.7mm_brain_mask -P 50` -mul 2.18 -thr 10 -min 50 -div 50 veins
-        $FSLDIR/bin/flirt -in veins -ref example_func -applyxfm -init highres2example_func.mat -out veins_exf
-        $FSLDIR/bin/fslmaths veins_exf -mas example_func veins_exf
+	reg_path = os.path.join(ica_path,'reg')
+	if os.path.exists(reg_path):
+		print('already moved the registrations')
+	else:
+		T1_scan='%s_ses-baselineYear1Arm1_T1w.nii'%sub
+		T1_path = os.path.join(basedir,sub,'ses-baselineYear1Arm1','anat',T1_scan)
+		T1_new_path = os.path.join(reg_path,T1_scan)
+		shutil.copyfile(T1_path, T1_new_path)
+		Mean_func_path = os.path.join(ica_path,'mean_func.nii.gz')
+		Example_func_path = os.path.join(reg_path, 'example_func.nii.gz')
+		'''
+		decision point what reg do you want
+		'''
+	
+#        $FSLDIR/bin/imln ../../../../T1w_restore_brain highres
+#        $FSLDIR/bin/imln ../../../../wmparc wmparc
+#        $FSLDIR/bin/imln ../mean_func example_func
+#        $FSLDIR/bin/makerot --theta=0 > highres2example_func.mat
+#        $FSLDIR/bin/fslmaths ../../../../T1w -div ../../../../T2w veins -odt float
+#        $FSLDIR/bin/fslmaths veins -div `$FSLDIR/bin/fslstats veins -k ${FSL_FIXDIR}/mask_files/hcp_0.7mm_brain_mask -P 50` -mul 2.18 -thr 10 -min 50 -div 50 veins
+#        $FSLDIR/bin/flirt -in veins -ref example_func -applyxfm -init highres2example_func.mat -out veins_exf
+#        $FSLDIR/bin/fslmaths veins_exf -mas example_func veins_exf
         '''
         starting fix?
         '''
