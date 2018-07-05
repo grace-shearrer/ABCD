@@ -20,7 +20,6 @@ SPIN_ECHO_METHOD_OPT="TOPUP"
 #  Load Function Libraries
 # --------------------------------------------------------------------------------
 
-source $HCPPIPEDIR_Global/log.shlib # Logging related functions
 
 Usage() {
   echo "`basename $0`: Script to register EPI to T1w, with distortion correction"
@@ -101,7 +100,6 @@ defaultopt() {
 #  Establish tool name for logging
 # --------------------------------------------------------------------------------
 
-log_SetToolName "DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased.sh"
 
 ################################################### OUTPUT FILES #####################################################
 
