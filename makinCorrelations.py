@@ -8,7 +8,6 @@ import subprocess
 import glob
 import os
 import pdb
-import fnmatch
 
 def cor_maker(basedir, workdir):
     biglist=glob.glob(os.path.join(basedir,'*.tgz'))
@@ -26,7 +25,7 @@ def cor_maker(basedir, workdir):
                 
             inputpath = glob.glob(os.path.join(workdir,folder,'ses-baselineYear1Arm1','func','*.nii'))
             for img in inputpath:
-                restcall = 'python /Users/nibl/Desktop/ABCD/scripts/rsfmri_python/bin/resting_pipeline.py --func %s --steps 3,7  --outpath %s'%(img,output)
+                restcall = 'python /Users/nibl/Desktop/ABCD/scripts/bin/resting_pipeline2.py --func=%s --steps="3,4,7"  --outpath=%s'%(img,output)
                 print(restcall)
                 runrest = subprocess.Popen(restcall, shell = True)
                 runrest.wait()

@@ -1014,7 +1014,9 @@ class RestPipe:
     #do the parcellation
     def step7a(self):
         logging.info('starting parcellation')
-        corrtxt = os.path.join(self.outpath,'corrlabel_ts.txt')
+        newprefix = self.prefix + "_corrlabel_ts.txt"
+        newfile = os.path.join(self.outpath, newprefix)  
+        corrtxt = os.path.join(self.outpath,newfile)
 
         thisprocstr = str("fslmeants -i " + self.thisnii + " --label=" + self.corrlabel + " -o " + corrtxt )
         logging.info('running: ' + thisprocstr)
@@ -1026,13 +1028,13 @@ class RestPipe:
     #do the correlation
     def step7b(self):
         logging.info('starting correlation')
-        rmat = os.path.join(self.outpath,'r_matrix.nii.gz')
-        rtxt = os.path.join(self.outpath,'r_matrix.csv')
-        zmat = os.path.join(self.outpath,'zr_matrix.nii.gz')
-        ztxt = os.path.join(self.outpath,'zr_matrix.csv')
-        corrtxt = os.path.join(self.outpath,'corrlabel_ts.txt')
-        maskname = os.path.join(self.outpath,'mask_matrix.nii.gz')
-        graphml = os.path.join(self.outpath,'subject.graphml')
+        rmat = os.path.join(self.outpath,'%s_r_matrix.nii.gz'%self.prefix)
+        rtxt = os.path.join(self.outpath,'%s_r_matrix.csv'%self.prefix)
+        zmat = os.path.join(self.outpath,'%s_zr_matrix.nii.gz'%self.prefix)
+        ztxt = os.path.join(self.outpath,'%s_zr_matrix.csv'%self.prefix)
+        corrtxt = os.path.join(self.outpath,'%s_corrlabel_ts.txt'%self.prefix)
+        maskname = os.path.join(self.outpath,'%s_mask_matrix.nii.gz'%self.prefix)
+        graphml = os.path.join(self.outpath,'%s_subject.graphml'%self.prefix)
 
         if self.corrts != None:
             corrtxt = self.corrts
