@@ -164,7 +164,7 @@ class RestPipe:
                 self.origbxh = str(options.funcfile)
 
         #t1
-        self.t1bxh = None
+#        self.t1bxh = None
         self.t1nii = None
         if options.anatfile is not None:
             if not ( os.path.isfile(options.anatfile)):

@@ -17,8 +17,20 @@ def cor_maker(basedir, workdir):
         print(x)
         #check for the folder 
         folder = 'sub-%s'%(x)
+        output = os.path.join(workdir, folder, 'derivative')
+        
         if os.path.exists(os.path.join(workdir,folder)):
             print('FOLDER EXISTS')
+            if os.path.exists(output) == False:
+                os.makedirs(output)
+                
+            inputpath = glob.glob(os.path.join(workdir,folder,'ses-baselineYear1Arm1','func','*.nii'))
+            for img in inputpath:
+                restcall = 'python /Users/nibl/Desktop/ABCD/scripts/rsfmri_python/bin/resting_pipeline.py --func %s --steps 3,7  --outpath %s'%(img,output)
+                print(restcall)
+                runrest = subprocess.Popen(restcall, shell = True)
+                runrest.wait()
+                pdb.set_trace()
             continue
         else:
             matching = [s for s in biglist if x in s]
@@ -29,13 +41,7 @@ def cor_maker(basedir, workdir):
                 call=subprocess.Popen(zippi, shell = True)
                 call.wait()
         pdb.set_trace()
-#    for file in glob.glob(os.path.join(basedir,'*.tgz')):
-#        zippi = 'tar -xzvf %s -C %s'%(file,workdir)
-#        print(zippi)
-#        call=subprocess.Popen(zippi, shell = True)
-#        call.wait()
-#        pdb.set_trace()
-    
+
 def main():
     basedir = '/Volumes/ABCDrive1/submission_14921'   
     workdir = '/Users/nibl/Desktop/workit/'
